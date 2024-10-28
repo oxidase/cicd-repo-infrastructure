@@ -6,6 +6,7 @@ Ben Deane <ben.deane@intel.com>
 :rouge-style: base16.solarized
 :source-language: c++
 :toc: left
+:mermaid-puppeteer-config: puppeteer_config.json
 
 == Introduction
 

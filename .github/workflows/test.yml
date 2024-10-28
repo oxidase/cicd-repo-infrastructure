@@ -41,7 +41,8 @@ jobs:
 
       - name: Install Mermaid
         run: |
-          sudo npm install -g @mermaid-js/mermaid-cli@11.2.0
+          sudo npm install -g @mermaid-js/mermaid-cli@11.2.1
+          npx puppeteer browsers install chrome-headless-shell
 
       - name: Install asciidoctor
         run: |
@@ -75,6 +76,22 @@ jobs:
         run: |
           pip install mypy black
 
+      - name: Configure cmake for lib
+        env:
+          CC: "/usr/lib/llvm-${{env.TARGET_LLVM_VERSION}}/bin/clang"
+          CXX: "/usr/lib/llvm-${{env.TARGET_LLVM_VERSION}}/bin/clang++"
+          PR_TARGET_BRANCH: ${{ steps.target_branch.outputs.branch }}
+        working-directory: ${{github.workspace}}/test/library
+        run: cmake -Bbuild
+
+      - name: Check lib quality
+        working-directory: ${{github.workspace}}/test/library
+        run: cmake --build build -t ci-quality
+
+      - name: Build lib docs
+        working-directory: ${{github.workspace}}/test/library
+        run: test $(cmake --build build -v -t docs | grep -c ERROR) == 0
+
       - name: Restore CPM cache
         env:
           cache-name: cpm-cache-0
@@ -85,22 +102,6 @@ jobs:
           key: ${{runner.os}}-${{env.cache-name}}-${{ hashFiles('**/CMakeLists.txt', 'cmake/**') }}
           restore-keys: |
             ${{runner.os}}-${{env.cache-name}}-
-
-      - name: Configure cmake for lib
-        env:
-          CC: "/usr/lib/llvm-${{env.TARGET_LLVM_VERSION}}/bin/clang"
-          CXX: "/usr/lib/llvm-${{env.TARGET_LLVM_VERSION}}/bin/clang++"
-          PR_TARGET_BRANCH: ${{ steps.target_branch.outputs.branch }}
-        working-directory: ${{github.workspace}}/test/library
-        run: cmake -Bbuild -DCPM_SOURCE_CACHE=~/cpm-cache
-
-      - name: Check lib quality
-        working-directory: ${{github.workspace}}/test/library
-        run: cmake --build build -t ci-quality
-
-      - name: Build lib docs
-        working-directory: ${{github.workspace}}/test/library
-        run: cmake --build build -t docs
 
       - name: Configure cmake for app
         env:
