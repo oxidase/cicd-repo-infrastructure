@@ -84,6 +84,10 @@ jobs:
         working-directory: ${{github.workspace}}/test/library
         run: cmake -Bbuild
 
+      - name: Build lib metabench tests
+        working-directory: ${{github.workspace}}/test/library
+        run: cmake --build build -t metabench_tests
+
       - name: Check lib quality
         working-directory: ${{github.workspace}}/test/library
         run: cmake --build build -t ci-quality

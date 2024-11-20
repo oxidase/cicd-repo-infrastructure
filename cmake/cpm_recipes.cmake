@@ -47,3 +47,18 @@ if(NOT COMMAND boost_sml_recipe)
             "SML_BUILD_TESTS OFF")
     endmacro()
 endif()
+
+if(NOT COMMAND metabench_recipe)
+    macro(metabench_recipe VERSION)
+        add_versioned_package(
+            NAME
+            metabench
+            GITHUB_REPOSITORY
+            "ldionne/metabench"
+            GIT_TAG
+            ${VERSION}
+            DOWNLOAD_ONLY
+            YES)
+        include("${metabench_SOURCE_DIR}/metabench.cmake")
+    endmacro()
+endif()
